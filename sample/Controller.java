@@ -45,13 +45,6 @@ public class Controller implements Initializable {
 
 	// ----------- Methods
 
-	/*
-	 * Metoda wywolywana przy starcie programu (okna programu) Zaimplementowano
-	 * w niej: wypelnianie elementow interfejsu uzytkownika takich jak combobxy,
-	 * itp. tworzenie obiektu refkleksji i z niego wydobywanie potrzebnych
-	 * danych do wypelniania komponentow obsluge zdarzen: klikniec, zmiany
-	 * elementow
-	 */
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 
@@ -62,15 +55,12 @@ public class Controller implements Initializable {
 		cbMethods.getStyleClass().add("custom-combobox");
 		textArea.getStyleClass().add("custom-textArea");
 
-		// wypelnienie comboboxa z klasami do uzycia
+		// fill comboboxes
 		initializeCbClassName();
 
 		try {
-			/*
-			 * inicjalizacja obiektu refkelskji: wywolanie konstruktora pobranie
-			 * nazw metod pobranie nazw atrybutow
-			 */
-			refUtils = new ReflectUtilities();
+
+            refUtils = new ReflectUtilities();
 			refUtils.invokeConstructor();
 			addElement(refUtils.getMethods(), cbMethods);
 			addElement(refUtils.getFields(), cbFields);
@@ -79,11 +69,6 @@ public class Controller implements Initializable {
 			e.printStackTrace();
 		}
 
-		/*
-		 * inicjalizacja listenera dla comboboxa z metodami. Jego zadaniem jest
-		 * wywolanie metody po zmianie elementu comboboxa. Metoda jest
-		 * wywolywana w momecie klikniecia na element comboboxa.
-		 */
 		cbMethods.valueProperty().addListener(new ChangeListener<String>() {
 
 			@Override
@@ -92,13 +77,9 @@ public class Controller implements Initializable {
 
 				if (tfFirstParam.getText().length() > 0) {
 
-					// wywolanie metody przy uzyciu obiektu refleksji
 					String outputValue = refUtils.invokeMethod(newValue,
 							tfFirstParam.getText().toString());
-					// dodanie do pola tekstowego wyniku jaki zwrocila metoda
 					textArea.setText(outputValue);
-					// wyczysczenie pol tekstowych odpowiedzialnych za
-					// wprowadzanie parametrow
 					tfFirstParam.clear();
 
 				} else {
@@ -108,10 +89,6 @@ public class Controller implements Initializable {
 			}
 		}); // end Listener
 
-		/*
-		 * Listner - (nasluchiwacz) dla comboboxa z polami pelni ta sama funkcje
-		 * co poprzedni
-		 */
 		cbFields.valueProperty().addListener(new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable,
@@ -129,11 +106,6 @@ public class Controller implements Initializable {
 			}
 		});
 
-		/*
-		 * Dodanie zdarzenia klikniecia dla przycisku start jego klikniecie
-		 * spowoduje: wywolanie konstruktora nowej klasy odczytanie nowych metod
-		 * i pol klasy wypelnienie comboboksow z tymi polami
-		 */
 		btStart.setOnMouseClicked(new EventHandler<MouseEvent>() {
 
 			@Override
@@ -157,19 +129,11 @@ public class Controller implements Initializable {
 		});
 	}
 
-	/*
-	 * metoda do ktorej mozna dodac dodatkowe klasy do odczytania przez program
-	 * (po wczesniejszym ich zaimplementowaniu)
-	 */
 	private void initializeCbClassName() {
 		cbClassName.getItems().addAll("reflection.TestClass",
 				"reflection.TestClass2");
 	}
 
-	/*
-	 * metoda, ktora dodaje elementy z listy (lista metod lub pol klasy) do
-	 * comboboksow
-	 */
 	private void addElement(ArrayList<String> list, ComboBox<String> element) {
 
 		for (Object aList : list) {

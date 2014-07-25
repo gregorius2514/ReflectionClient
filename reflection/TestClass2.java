@@ -1,8 +1,5 @@
 package reflection;
 
-/**
- * Created by grzesiek on 24.06.14.
- */
 public class TestClass2 {
     private String imie = "Tomasz";
     private String wiek = "19";
@@ -18,9 +15,11 @@ public class TestClass2 {
     public String pobierzElement() {
         return "Siemka co tam";
     }
+
     public String ustawElement(String name) {
         return "Zmiana elementu na  " + name;
     }
+
     public String kasujElement(float id) {
         return "Usuniecie elementu z id:" + id;
     }

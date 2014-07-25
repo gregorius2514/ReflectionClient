@@ -6,38 +6,16 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 
-/**
- * Created by grzesiek on 13.06.14.
- */
 public class ReflectUtilities {
 
-    /*
-        pola prywatne przechowujace:
-        * nazwe klasy sluzacej do uzycia na niej mechanizmow refleksji
-        * obiekt klasy sluzacy do odczytu elementow klasy takich jak pola, metody, konstruktory
-        * instancja klasy czyli fizyczny obiekt przez, ktory wywolujemy konstruktory, metody, odczytujemy wartosci pol
-        *
-        * !! instancja jest tworzona tylko jeden raz podczas wywolywania konstruktora (podczas klikniecia na przycisk "START")
-     */
     private String className;
     private Class cl;
     private Object instance = null;
 
-    /*
-            konstruktor klasy refleksji
-            posiada zainicjalizowana przykladowa klase
-            oraz utworzony jest obiekt klasy, przez ktora odczytujemy jej wlasciwosci
-     */
     public ReflectUtilities() throws ClassNotFoundException {
         className = "reflection.TestClass";
         cl = Class.forName(className);
     }
-
-    /*
-        metoda sluzaca do ustawienia nazwy klasy.
-        Sprawdzana jest dlugosc zmiennej przekazanej do metody by
-        upewnic sie czy nie przkazywany jest pusty znak
-     */
 
     public void setClassName(String className) {
 
@@ -55,11 +33,6 @@ public class ReflectUtilities {
         }
     }
 
-    /*
-            metoda odczytujaca pola metod zawartych w klasie.
-            Pola te nastepnie sa dodawane do listy (listy tablic) i lista ta jest nastepnie zwracana.
-            Uzyto tutaj listy poniewaz jest duzo wygodniejsza w uzyciu od tablicy.
-     */
     public ArrayList<String> getMethods() throws ClassNotFoundException {
         ArrayList<String> methods = new ArrayList<String>();
         Method[] meth = cl.getDeclaredMethods();
@@ -71,9 +44,6 @@ public class ReflectUtilities {
         return methods;
     }
 
-    /*
-        Metoda pobierajaca pola dziala na tej samej zasadzie co metoda pobierajaca metody
-     */
     public ArrayList<String> getFields() throws ClassNotFoundException {
         ArrayList<String> fields = new ArrayList<String>();
 
@@ -85,12 +55,6 @@ public class ReflectUtilities {
         return fields;
     }
 
-    /*
-        Metoda wywolujaca konstruktor klasy.
-        Tworzona jest tutaj instancja (fizyczny obiekt) klasy, z ktorej
-        wyciagane sa potrzebne informacje.
-     */
-    // execute constructor
     public void invokeConstructor() {
 
         try {
@@ -107,31 +71,22 @@ public class ReflectUtilities {
         }
     }
 
-     /*
-            Metoda wywolujaca konkretna metode, przekazujaca do niej parametry oraz zwracajaca
-            dane z metody.
-      */
-    // execute specyfic method
     public String invokeMethod(String name, String firstParam) {
-        // atrybut (zmienna), ktora sluzy do zwrocenia wartosci
         String output = null;
-        // atrybut method slyzy do przechowywania obiektu metody, ktora ma byc wywolana (w polaczeniu z instancja)
         Method method = null;
 
-        // typy parametrow przekazywanych do metody
         Class[][] parametersTypes = {
                 {Integer.TYPE}, // method oblicz
                 {}, // method getter
                 {String.class}, // method update
                 {Float.TYPE} // method delete
         };
-        // algorytm sprawdzajacy jaka metode wykonyjemy
+
         if(name.equalsIgnoreCase("oblicz")) {
 
             try {
-                // pobranie obiektu metody po nazwie oraz przekazanie jej parametrow metody (z zdefiniowanej wczesniej tablicy parametrow)
+
                 method = cl.getDeclaredMethod(name, parametersTypes[0]);
-                // metoda zwraca dane
                 output = (String) method.invoke(instance, Integer.parseInt(firstParam));
 
             } catch (NoSuchMethodException e) {
@@ -191,10 +146,6 @@ public class ReflectUtilities {
         return output;
     }
 
-    /*
-        Metoda, ktora sluzy do odczytu wartosci pol oraz zapisu pol
-     */
-    // getFields values
     public String getFieldsValue(String fieldName, String newValue) {
         String output = "Old value: ";
 
