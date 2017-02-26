@@ -18,126 +18,122 @@ import java.util.ResourceBundle;
 
 public class Controller implements Initializable {
 
-	// ------------ ATTRIBUTES
-	private ReflectUtilities refUtils;
+    // ------------ ATTRIBUTES
+    private ReflectUtilities refUtils;
 
-	// ------------ JavaFX gui fields
-	@FXML
-	private ComboBox<String> cbMethods;
+    // ------------ JavaFX gui fields
+    @FXML
+    private ComboBox<String> cbMethods;
 
-	@FXML
-	private ComboBox<String> cbFields;
+    @FXML
+    private ComboBox<String> cbFields;
 
-	@FXML
-	private TextArea textArea;
+    @FXML
+    private TextArea textArea;
 
-	@FXML
-	private TextField tfAttr;
+    @FXML
+    private TextField tfAttr;
 
-	@FXML
-	private ComboBox<String> cbClassName;
+    @FXML
+    private ComboBox<String> cbClassName;
 
-	@FXML
-	private TextField tfFirstParam;
+    @FXML
+    private TextField tfFirstParam;
 
-	@FXML
-	private Button btStart;
+    @FXML
+    private Button btStart;
 
-	// ----------- Methods
+    // ----------- Methods
 
-	@Override
-	public void initialize(URL location, ResourceBundle resources) {
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        tfAttr.getStyleClass().add("custom-text-field");
+        cbClassName.getStyleClass().add("custom-combobox");
+        tfFirstParam.getStyleClass().add("custom-text-field");
+        cbFields.getStyleClass().add("custom-combobox");
+        cbMethods.getStyleClass().add("custom-combobox");
+        textArea.getStyleClass().add("custom-textArea");
 
-		tfAttr.getStyleClass().add("custom-text-field");
-		cbClassName.getStyleClass().add("custom-combobox");
-		tfFirstParam.getStyleClass().add("custom-text-field");
-		cbFields.getStyleClass().add("custom-combobox");
-		cbMethods.getStyleClass().add("custom-combobox");
-		textArea.getStyleClass().add("custom-textArea");
+        // fill comboboxes
+        initializeCbClassName();
 
-		// fill comboboxes
-		initializeCbClassName();
-
-		try {
-
+        try {
             refUtils = new ReflectUtilities();
-			refUtils.invokeConstructor();
-			addElement(refUtils.getMethods(), cbMethods);
-			addElement(refUtils.getFields(), cbFields);
+            refUtils.invokeConstructor();
+            addElement(refUtils.getMethods(), cbMethods);
+            addElement(refUtils.getFields(), cbFields);
+        }
+        catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
 
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		}
+        cbMethods.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable,
+                    String oldValue, String newValue) {
 
-		cbMethods.valueProperty().addListener(new ChangeListener<String>() {
+                if (tfFirstParam.getText().length() > 0) {
 
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
+                    String outputValue = refUtils.invokeMethod(newValue,
+                            tfFirstParam.getText().toString());
+                    textArea.setText(outputValue);
+                    tfFirstParam.clear();
 
-				if (tfFirstParam.getText().length() > 0) {
+                } 
+                else {
+                    textArea.setText("UWAGA::WPROWADZ PARAMETR, KTÓRY ZOSTANIE PRZEKAZANY DO METODY!");
+                }
 
-					String outputValue = refUtils.invokeMethod(newValue,
-							tfFirstParam.getText().toString());
-					textArea.setText(outputValue);
-					tfFirstParam.clear();
+            }
+        }); // end Listener
 
-				} else {
-					textArea.setText("UWAGA::WPROWADZ PARAMETR, KTÓRY ZOSTANIE PRZEKAZANY DO METODY!");
-				}
+        cbFields.valueProperty().addListener(new ChangeListener<String>() {
+            @Override
+            public void changed(ObservableValue<? extends String> observable,
+                    String oldValue, String newValue) {
 
-			}
-		}); // end Listener
+                if (tfAttr.getText().length() > 0) {
+                    String outputValue = refUtils.getFieldsValue(newValue,
+                            tfAttr.getText());
+                    textArea.setText(outputValue);
 
-		cbFields.valueProperty().addListener(new ChangeListener<String>() {
-			@Override
-			public void changed(ObservableValue<? extends String> observable,
-					String oldValue, String newValue) {
+                }
+                else {
+                    textArea.setText("UWAGA::WPROWADZ NOWĄ WARTOŚĆ ATRYBUTU!");
+                }
+            }
+        });
 
-				if (tfAttr.getText().length() > 0) {
+        btStart.setOnMouseClicked(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                cbMethods = new ComboBox<String>();
+                cbFields = new ComboBox<String>();
 
-					String outputValue = refUtils.getFieldsValue(newValue,
-							tfAttr.getText());
-					textArea.setText(outputValue);
+                refUtils.setClassName(cbClassName.getSelectionModel()
+                        .getSelectedItem().toString());
+                refUtils.invokeConstructor();
 
-				} else {
-					textArea.setText("UWAGA::WPROWADZ NOWĄ WARTOŚĆ ATRYBUTU!");
-				}
-			}
-		});
+                try {
+                    addElement(refUtils.getMethods(), cbMethods);
+                    addElement(refUtils.getFields(), cbFields);
 
-		btStart.setOnMouseClicked(new EventHandler<MouseEvent>() {
+                }
+                catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
 
-			@Override
-			public void handle(MouseEvent event) {
+    private void initializeCbClassName() {
+        cbClassName.getItems().addAll("reflection.TestClass",
+                "reflection.TestClass2");
+    }
 
-				cbMethods = new ComboBox<String>();
-				cbFields = new ComboBox<String>();
-
-				refUtils.setClassName(cbClassName.getSelectionModel()
-						.getSelectedItem().toString());
-				refUtils.invokeConstructor();
-
-				try {
-					addElement(refUtils.getMethods(), cbMethods);
-					addElement(refUtils.getFields(), cbFields);
-
-				} catch (ClassNotFoundException e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
-
-	private void initializeCbClassName() {
-		cbClassName.getItems().addAll("reflection.TestClass",
-				"reflection.TestClass2");
-	}
-
-	private void addElement(ArrayList<String> list, ComboBox<String> element) {
-
-		for (Object aList : list) {
-			element.getItems().add(aList.toString());
-		}
-	}
+    private void addElement(ArrayList<String> list, ComboBox<String> element) {
+        for (Object aList : list) {
+            element.getItems().add(aList.toString());
+        }
+    }
 }
